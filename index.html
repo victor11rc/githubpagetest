@@ -1,84 +1,101 @@
-<div id="app">
-  <v-app id="inspire">
-    <div>
-      <v-toolbar flat color="white">
-        <v-toolbar-title>Gestion de Terrains</v-toolbar-title>
-        <v-divider
-          class="mx-2"
-          inset
-          vertical
-        ></v-divider>
-        <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="500px">
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark class="mb-2" v-on="on">Nouveau Terrain</v-btn>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion de Terrains</title>
+  <!-- Enlace a Vuetify CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <!-- Enlace a Material Design Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Contenedor principal -->
+  <div id="app">
+    <v-app id="inspire">
+      <div>
+        <v-toolbar flat color="white">
+          <v-toolbar-title>Gestion de Terrains</v-toolbar-title>
+          <v-divider class="mx-2" inset vertical></v-divider>
+          <v-spacer></v-spacer>
+          <v-dialog v-model="dialog" max-width="500px">
+            <template v-slot:activator="{ on }">
+              <v-btn color="primary" dark class="mb-2" v-on="on">Nouveau Terrain</v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="headline">{{ formTitle }}</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field v-model="editedItem.name" label="Nom de Terrain"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field v-model="editedItem.price" label="Prix"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field v-model="editedItem.size_id" label="Size"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field v-model="editedItem.schedule_id" label="Horaire"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field v-model="editedItem.name" label="Unknown"></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat @click="close">Annuler</v-btn>
+                <v-btn color="blue darken-1" flat @click="save">Enregistrer</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+        <v-data-table
+          :headers="headers"
+          :items="terrains"
+          class="elevation-1"
+        >
+          <template v-slot:items="props">
+            <td class="text-xs-right">{{ props.item.name }}</td>
+            <td class="text-xs-right">{{ props.item.price }}</td>
+            <td class="text-xs-right">{{ props.item.size_id }}</td>
+            <td class="text-xs-right">{{ props.item.schedule_id }}</td>
+            <td class="text-xs-right">{{ props.item.name }}</td>
+            <td class="justify-center layout px-0">
+              <v-icon
+                small
+                class="mr-2"
+                @click="editItem(props.item)"
+              >
+                edit
+              </v-icon>
+              <v-icon
+                small
+                @click="deleteItem(props.item)"
+              >
+                delete
+              </v-icon>
+            </td>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="headline">{{ formTitle }}</span>
-            </v-card-title>
+          <template v-slot:no-data>
+            <v-btn color="primary" @click="initialize">Reset</v-btn>
+          </template>
+        </v-data-table>
+      </div>
+    </v-app>
+  </div>
   
-            <v-card-text>
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedItem.name" label="Nom de Terrain"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedItem.price" label="Prix"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedItem.size_id" label="Size"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedItem.schedule_id" label="Horaire"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedItem.name" label="Unknown"></v-text-field>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-  
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat @click="close">Annuler</v-btn>
-              <v-btn color="blue darken-1" flat @click="save">Enregistrer</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-toolbar>
-      <v-data-table
-        :headers="headers"
-        :items="terrains"
-        class="elevation-1"
-      >
-        <template v-slot:items="props">
-          <td class="text-xs-right">{{ props.item.name }}</td>
-          <td class="text-xs-right">{{ props.item.price }}</td>
-          <td class="text-xs-right">{{ props.item.size_id }}</td>
-          <td class="text-xs-right">{{ props.item.schedule_id }}</td>
-          <td class="text-xs-right">{{ props.item.name }}</td>
-          <td class="justify-center layout px-0">
-            <v-icon
-              small
-              class="mr-2"
-              @click="editItem(props.item)"
-            >
-              edit
-            </v-icon>
-            <v-icon
-              small
-              @click="deleteItem(props.item)"
-            >
-              delete
-            </v-icon>
-          </td>
-        </template>
-        <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">Reset</v-btn>
-        </template>
-      </v-data-table>
-    </div>
-  </v-app>
-</div>
+  <!-- Scripts -->
+  <!-- Vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Vuetify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <!-- Tu archivo JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
